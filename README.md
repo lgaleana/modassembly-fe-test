@@ -58,7 +58,7 @@ pnpm preview
 ```
 
 ## Features
-- Input form for system name and description
+- Input form for system name and user story
 - Real-time error handling
 - Dependency graph visualization
 - Deployment status tracking
