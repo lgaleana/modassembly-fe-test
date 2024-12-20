@@ -1,50 +1,79 @@
-# React + TypeScript + Vite
+# ModAssembly Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A beginner-friendly frontend application for generating and deploying autonomous software systems.
 
-Currently, two official plugins are available:
+## Quick Start Guide
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
+Before you begin, make sure you have:
+1. [Node.js](https://nodejs.org/) installed (version 18 or higher)
+   - To check if you have Node.js: Open terminal/command prompt and type `node --version`
+   - If not installed, download and install from [Node.js website](https://nodejs.org/)
 
-## Expanding the ESLint configuration
+2. Package Manager (pnpm recommended)
+   ```bash
+   # Install pnpm globally
+   npm install -g pnpm
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Setting Up Your Project
+1. **Get the Code**
+   ```bash
+   # Clone the repository
+   git clone https://github.com/lgaleana/modassembly-fe-test.git
 
-- Configure the top-level `parserOptions` property like this:
+   # Go to the project folder
+   cd modassembly-fe-test
+   ```
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+2. **Install Dependencies**
+   ```bash
+   # Install all required packages
+   pnpm install
+   ```
+
+3. **Start Development Server**
+   ```bash
+   # Run the development server
+   pnpm dev
+   ```
+
+   Once started, open your web browser and go to:
+   [http://localhost:5173](http://localhost:5173)
+
+   You should see the ModAssembly interface!
+
+### Making Changes
+1. The main application code is in `src/App.tsx`
+2. CSS styles are in `src/index.css`
+3. Save any file to see changes instantly in the browser
+
+### Building for Production
+```bash
+# Create optimized build
+pnpm build
+
+# Preview the build locally
+pnpm preview
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Features
+- Input form for system name and description
+- Real-time error handling
+- Dependency graph visualization
+- Deployment status tracking
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Troubleshooting
+Common issues and solutions:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+1. **"command not found: pnpm"**
+   - Run: `npm install -g pnpm`
+
+2. **Dependencies installation fails**
+   - Try: `pnpm install --force`
+   - Or: `rm -rf node_modules pnpm-lock.yaml && pnpm install`
+
+3. **Port already in use**
+   - Try a different port: `pnpm dev --port 3000`
+
+Need more help? Create an issue in the GitHub repository!
