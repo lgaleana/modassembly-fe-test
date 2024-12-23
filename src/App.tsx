@@ -1,5 +1,47 @@
 import { useState } from 'react'
+import ReactFlow, { Node, Edge, Controls, Background } from 'reactflow'
+import 'reactflow/dist/style.css'
 import './App.css'
+
+const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
+  const nodes: Node[] = []
+  const edges: Edge[] = []
+  const nodePositions = new Map<string, { x: number, y: number }>()
+
+  // First pass: create nodes with positions
+  Object.keys(graph).forEach((nodeName, index) => {
+    const x = (index % 3) * 250 + 50  // 3 nodes per row, 250px apart
+    const y = Math.floor(index / 3) * 100 + 50  // 100px between rows
+    nodePositions.set(nodeName, { x, y })
+    nodes.push({
+      id: nodeName,
+      position: { x, y },
+      data: { label: nodeName },
+      style: { 
+        background: '#334155',
+        color: '#fff',
+        border: '1px solid #475569',
+        borderRadius: '8px',
+        padding: '10px'
+      }
+    })
+  })
+
+  // Second pass: create edges
+  Object.entries(graph).forEach(([source, targets]) => {
+    targets.forEach((target) => {
+      edges.push({
+        id: `${source}-${target}`,
+        source,
+        target,
+        style: { stroke: '#475569' },
+        animated: true
+      })
+    })
+  })
+
+  return { nodes, edges }
+}
 
 interface SystemData {
   name: string
@@ -9,37 +51,20 @@ interface SystemData {
 function App() {
   const [systemData, setSystemData] = useState<SystemData>({ name: '', description: '' })
   const [loading, setLoading] = useState(false)
+  const [isDeploying, setIsDeploying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [graph, setGraph] = useState<Record<string, string[]> | null>(null)
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleDeploy = async () => {
     setLoading(true)
+    setIsDeploying(true)
     setError(null)
-    setGraph(null)
-    setDeployedUrl(null)
-
     try {
-      // TODO: Replace with actual API endpoints
-      const graphResponse = await fetch('/api/graph', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(systemData),
-      })
-
-      if (!graphResponse.ok) {
-        const errorText = await graphResponse.text()
-        throw new Error(errorText)
-      }
-
-      const graphData = await graphResponse.json()
-      setGraph(graphData)
-
-      const deployResponse = await fetch('/api/deploy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: systemData.name }),
+      const deployResponse = await fetch(`/api/implement_app/?${new URLSearchParams({
+          app_name: systemData.name
+        })}`, {
+        method: 'POST'
       })
 
       if (!deployResponse.ok) {
@@ -53,6 +78,55 @@ function App() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setGraph(null)
+    setDeployedUrl(null)
+
+    try {
+      const graphResponse = await fetch(`/api/create-app/?${new URLSearchParams({
+          app_name: systemData.name,
+          description: systemData.description
+        })}`, {
+        method: 'POST'
+      })
+
+      if (!graphResponse.ok) {
+        const errorText = await graphResponse.text()
+        throw new Error(errorText)
+      }
+
+      const graphData = await graphResponse.json()
+      setGraph(graphData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setLoading(false)
+      setIsDeploying(false)
+    }
+  }
+
+  if (isDeploying) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <header className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">AI System Assembly Line</h1>
+          </header>
+          <div className="flex items-center justify-center p-12 bg-zinc-900 rounded-lg">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500 mx-auto mb-6"></div>
+              <p className="text-xl mb-2">Deploying Your System</p>
+              <p className="text-zinc-400">This may take a few moments...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -110,10 +184,23 @@ function App() {
         {graph && (
           <div className="bg-zinc-900 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">System Dependency Graph</h2>
-            {/* TODO: Implement graph visualization */}
-            <pre className="bg-zinc-800 p-4 rounded overflow-auto">
-              {JSON.stringify(graph, null, 2)}
-            </pre>
+            <div style={{ height: '500px', background: '#18181b' }} className="rounded-lg">
+              <ReactFlow
+                {...convertGraphToNodesAndEdges(graph)}
+                fitView
+                className="bg-zinc-900"
+              >
+                <Background />
+                <Controls />
+              </ReactFlow>
+            </div>
+            <button
+              onClick={handleDeploy}
+              disabled={loading}
+              className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Deploying...' : 'Deploy This App'}
+            </button>
           </div>
         )}
 
