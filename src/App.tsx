@@ -64,7 +64,11 @@ function App() {
       const deployResponse = await fetch(`/api/implement_app/?${new URLSearchParams({
           app_name: systemData.name
         })}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'accept': 'application/json'
+        },
+        body: ''
       })
 
       if (!deployResponse.ok) {
@@ -92,12 +96,25 @@ function App() {
           app_name: systemData.name,
           description: systemData.description
         })}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'accept': 'application/json'
+        },
+        body: ''
       })
 
       if (!graphResponse.ok) {
         const errorText = await graphResponse.text()
-        throw new Error(errorText)
+        let errorMessage = errorText
+        try {
+          const errorJson = JSON.parse(errorText)
+          if (errorJson.detail && errorJson.detail.includes("already exists")) {
+            errorMessage = "An app with this name already exists. Please choose a different name."
+          }
+        } catch (e) {
+          // If error text is not JSON, use it as is
+        }
+        throw new Error(errorMessage)
       }
 
       const graphData = await graphResponse.json()
