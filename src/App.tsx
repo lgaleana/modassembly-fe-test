@@ -188,7 +188,7 @@ function App() {
             disabled={loading}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded font-medium transition-colors"
           >
-            {loading ? 'Processing...' : 'Generate & Deploy System'}
+            {loading ? 'Processing...' : 'Generate'}
           </button>
         </form>
 
