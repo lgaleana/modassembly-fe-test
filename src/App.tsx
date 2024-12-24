@@ -175,6 +175,26 @@ function App() {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-deep-blue-start to-deep-blue-end text-white p-8 relative">
+        <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
+        <div className="max-w-4xl mx-auto">
+          <header className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">Modular Assembly</h1>
+          </header>
+          <div className="bg-white/5 backdrop-blur-sm p-12 rounded-lg shadow-lg border border-white/10">
+            <div className="text-center relative z-10">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <p className="text-xl mb-2">Deploying Your System</p>
+              <p className="text-gray-300">Please wait while we set up your environment...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-deep-blue-start to-deep-blue-end text-white p-8 relative">
       <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
@@ -264,7 +284,7 @@ function App() {
                   gap={16}
                   size={1}
                 />
-                <Controls 
+                <Controls  
                   className="bg-white shadow-lg border border-gray-200"
                   showInteractive={false}
                 />
