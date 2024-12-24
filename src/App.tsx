@@ -17,12 +17,21 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
       id: nodeName,
       position: { x, y },
       data: { label: nodeName },
+      className: 'group',
       style: { 
-        background: '#334155',
-        color: '#fff',
-        border: '1px solid #475569',
+        background: 'rgba(15, 23, 42, 0.8)',
+        color: '#00f0ff',
+        border: '2px solid rgba(0, 240, 255, 0.3)',
         borderRadius: '8px',
-        padding: '10px'
+        padding: '12px',
+        backdropFilter: 'blur(8px)',
+        boxShadow: '0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1)',
+        transition: 'all 0.3s ease-in-out',
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: '500',
+        letterSpacing: '0.5px',
+        transform: 'translateZ(0)'
       }
     })
   })
@@ -34,8 +43,14 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
         id: `${source}-${target}`,
         source,
         target,
-        style: { stroke: '#475569' },
-        animated: true
+        style: { 
+          stroke: '#00f0ff', // neon-cyan
+          strokeWidth: 2,
+          opacity: 0.6,
+          filter: 'drop-shadow(0 0 8px rgba(0, 240, 255, 0.4))'
+        },
+        animated: true,
+        type: 'smoothstep'
       })
     })
   })
@@ -129,16 +144,16 @@ function App() {
 
   if (isDeploying) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-50 p-8">
+      <div className="min-h-screen bg-deep-space text-zinc-50 p-8 cyber-grid">
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">AI System Assembly Line</h1>
+            <h1 className="text-4xl font-bold mb-2 neon-text">AI System Assembly Line</h1>
           </header>
-          <div className="flex items-center justify-center p-12 bg-zinc-900 rounded-lg">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-500 mx-auto mb-6"></div>
-              <p className="text-xl mb-2">Deploying Your System</p>
-              <p className="text-zinc-400">This may take a few moments...</p>
+          <div className="loading-container holographic p-12 rounded-lg">
+            <div className="text-center relative z-10">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <p className="text-xl mb-2 loading-text neon-text">Deploying Your System</p>
+              <p className="text-neon-cyan opacity-70">Initializing deployment sequence...</p>
             </div>
           </div>
         </div>
@@ -147,16 +162,17 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-deep-space text-zinc-50 p-8 cyber-grid relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-deep-space/80 to-transparent opacity-50 pointer-events-none"></div>
+      <div className="max-w-4xl mx-auto space-y-8 relative">
         <header className="text-center">
-          <h1 className="text-4xl font-bold mb-2">AI System Assembly Line</h1>
+          <h1 className="text-4xl font-bold mb-2 neon-text">AI System Assembly Line</h1>
           <p className="text-zinc-400">Generate and deploy autonomous software systems</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4 bg-zinc-900 p-6 rounded-lg">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
+        <form onSubmit={handleSubmit} className="space-y-4 holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
+          <div className="space-y-2">
+            <label htmlFor="name" className="block text-sm font-medium mb-1 text-neon-cyan">
               System Name
             </label>
             <input
@@ -164,20 +180,20 @@ function App() {
               type="text"
               value={systemData.name}
               onChange={(e) => setSystemData(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-zinc-800/80 rounded border border-zinc-700/50 focus:outline-none focus:glow-cyan hover:glow-blue transition-all duration-300 holographic"
               required
             />
           </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium mb-1">
+          <div className="space-y-2">
+            <label htmlFor="description" className="block text-sm font-medium mb-1 text-neon-cyan">
               User Story
             </label>
             <textarea
               id="description"
               value={systemData.description}
               onChange={(e) => setSystemData(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 bg-zinc-800 rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              className="w-full px-3 py-2 bg-zinc-800/80 rounded border border-zinc-700/50 focus:outline-none focus:glow-cyan hover:glow-blue transition-all duration-300 holographic min-h-[100px]"
               required
               placeholder="As a user, I want... so that..."
             />
@@ -186,26 +202,36 @@ function App() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded font-medium transition-colors"
+            className="w-full py-2 px-4 bg-neon-blue hover:glow-blue disabled:opacity-50 disabled:cursor-not-allowed rounded font-medium transition-all duration-300 holographic"
           >
-            {loading ? 'Processing...' : 'Generate System'}
+            {loading ? (
+              <span className="inline-flex items-center justify-center space-x-2">
+                <span className="loading-spinner w-5 h-5"></span>
+                <span className="loading-text">Processing</span>
+              </span>
+            ) : (
+              'Generate System'
+            )}
           </button>
         </form>
 
         {error && (
-          <div className="bg-red-900/50 border border-red-700 p-4 rounded-lg text-red-200">
-            {error}
+          <div className="holographic border-red-500/50 p-4 rounded-lg text-red-200 glow-red animate-pulse-glow">
+            <span className="inline-flex items-center">
+              <span className="mr-2">⚠</span>
+              {error}
+            </span>
           </div>
         )}
 
         {graph && (
-          <div className="bg-zinc-900 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">System Dependency Graph</h2>
-            <div style={{ height: '500px', background: '#18181b' }} className="rounded-lg">
+          <div className="holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
+            <h2 className="text-xl font-semibold mb-4 neon-text">System Dependency Graph</h2>
+            <div style={{ height: '500px' }} className="rounded-lg overflow-hidden holographic">
               <ReactFlow
                 {...convertGraphToNodesAndEdges(graph)}
                 fitView
-                className="bg-zinc-900"
+                className="bg-deep-space cyber-grid"
               >
                 <Background />
                 <Controls />
@@ -214,24 +240,35 @@ function App() {
             <button
               onClick={handleDeploy}
               disabled={loading}
-              className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 bg-neon-blue hover:glow-blue text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
-              {loading ? 'Deploying...' : 'Deploy This App'}
+              {loading ? (
+                <span className="inline-flex items-center">
+                  <span className="animate-pulse-glow">Deploying</span>
+                  <span className="animate-pulse">...</span>
+                </span>
+              ) : (
+                'Deploy This App'
+              )}
             </button>
           </div>
         )}
 
         {deployedUrl && (
-          <div className="bg-zinc-900 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Deployment Status</h2>
-            <p className="text-green-400 mb-2">✓ System successfully deployed</p>
+          <div className="holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
+            <h2 className="text-xl font-semibold mb-4 neon-text">Deployment Status</h2>
+            <p className="text-neon-cyan mb-2 flex items-center">
+              <span className="mr-2">✓</span>
+              <span className="animate-pulse-glow">System successfully deployed</span>
+            </p>
             <a
               href={deployedUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
+              className="inline-flex items-center text-neon-blue hover:glow-blue transition-all duration-300"
             >
-              View Deployed System →
+              View Deployed System
+              <span className="ml-1 animate-float">→</span>
             </a>
           </div>
         )}
