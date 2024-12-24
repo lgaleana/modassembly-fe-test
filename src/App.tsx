@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import ReactFlow, { Node, Edge, Controls, Background } from 'reactflow'
+import ReactFlow, { Node, Edge, Controls, Background, BackgroundVariant, MarkerType } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './App.css'
 
@@ -8,10 +8,20 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
   const edges: Edge[] = []
   const nodePositions = new Map<string, { x: number, y: number }>()
 
+  // Calculate layout dimensions
+  const nodesPerRow = 3
+  const horizontalSpacing = 280  // Increased spacing between nodes
+  const verticalSpacing = 120    // Increased spacing between rows
+  const startX = 50
+  const startY = 50
+
   // First pass: create nodes with positions
   Object.keys(graph).forEach((nodeName, index) => {
-    const x = (index % 3) * 250 + 50  // 3 nodes per row, 250px apart
-    const y = Math.floor(index / 3) * 100 + 50  // 100px between rows
+    const row = Math.floor(index / nodesPerRow)
+    const col = index % nodesPerRow
+    const x = startX + (col * horizontalSpacing)
+    const y = startY + (row * verticalSpacing)
+    
     nodePositions.set(nodeName, { x, y })
     nodes.push({
       id: nodeName,
@@ -19,15 +29,17 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
       data: { label: nodeName },
       style: { 
         background: '#ffffff',
-        color: '#374151',
+        color: '#1f2937',  // Darker text for better contrast
         border: '1px solid #e5e7eb',
-        borderRadius: '6px',
-        padding: '12px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        transition: 'all 0.2s ease-in-out',
+        borderRadius: '8px',
+        padding: '16px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'pointer',
         fontSize: '14px',
-        fontWeight: '500'
+        fontWeight: '500',
+        minWidth: '150px',  // Ensure consistent node width
+        textAlign: 'center' as const
       }
     })
   })
@@ -41,11 +53,17 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
         target,
         style: { 
           stroke: '#59D78F',
-          strokeWidth: 1.5,
-          opacity: 0.8
+          strokeWidth: 2,
+          opacity: 0.7
         },
-        animated: true,
-        type: 'smoothstep'
+        animated: false,  // Remove animation for cleaner look
+        type: 'smoothstep',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#59D78F',
+          width: 20,
+          height: 20
+        }
       })
     })
   })
@@ -231,10 +249,25 @@ function App() {
               <ReactFlow
                 {...convertGraphToNodesAndEdges(graph)}
                 fitView
-                className="bg-gray-50"
+                className="bg-white"
+                defaultEdgeOptions={{
+                  type: 'smoothstep',
+                  animated: false
+                }}
+                nodesDraggable={false}
+                nodesConnectable={false}
+                zoomOnScroll={false}
               >
-                <Background color="#f3f4f6" />
-                <Controls />
+                <Background 
+                  color="#e5e7eb"
+                  variant={BackgroundVariant.Dots}
+                  gap={16}
+                  size={1}
+                />
+                <Controls 
+                  className="bg-white shadow-lg border border-gray-200"
+                  showInteractive={false}
+                />
               </ReactFlow>
             </div>
             <button
