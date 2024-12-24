@@ -161,7 +161,27 @@ function App() {
         <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">AI System Assembly</h1>
+            <h1 className="text-4xl font-bold mb-2">Modular Assembly</h1>
+          </header>
+          <div className="bg-white/5 backdrop-blur-sm p-12 rounded-lg shadow-lg border border-white/10">
+            <div className="text-center relative z-10">
+              <div className="loading-spinner mx-auto mb-6"></div>
+              <p className="text-xl mb-2">Deploying Your System</p>
+              <p className="text-gray-300">Please wait while we set up your environment...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-deep-blue-start to-deep-blue-end text-white p-8 relative">
+        <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
+        <div className="max-w-4xl mx-auto">
+          <header className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">Modular Assembly</h1>
           </header>
           <div className="bg-white/5 backdrop-blur-sm p-12 rounded-lg shadow-lg border border-white/10">
             <div className="text-center relative z-10">
@@ -180,8 +200,8 @@ function App() {
       <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
       <div className="max-w-4xl mx-auto space-y-8 relative">
         <header className="text-center">
-          <h1 className="text-4xl font-bold mb-2">AI System Assembly</h1>
-          <p className="text-gray-300">Next Generation Data Aggregation</p>
+          <h1 className="text-4xl font-bold mb-2">Modular Assembly</h1>
+          <p className="text-gray-300">AI-native E2E software platform</p>
         </header>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-6">
@@ -195,7 +215,7 @@ function App() {
                 type="text"
                 value={systemData.name}
                 onChange={(e) => setSystemData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all text-gray-900"
                 required
               />
             </div>
@@ -208,7 +228,7 @@ function App() {
                 id="description"
                 value={systemData.description}
                 onChange={(e) => setSystemData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all min-h-[100px]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all min-h-[100px] text-gray-900"
                 required
                 placeholder="As a user, I want... so that..."
               />
@@ -264,7 +284,7 @@ function App() {
                   gap={16}
                   size={1}
                 />
-                <Controls 
+                <Controls  
                   className="bg-white shadow-lg border border-gray-200"
                   showInteractive={false}
                 />
