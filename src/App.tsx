@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import ReactFlow, { Node, Edge, Controls, Background } from 'reactflow'
+import ReactFlow, { Node, Edge, Controls, Background, BackgroundVariant, MarkerType } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './App.css'
 
@@ -8,30 +8,38 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
   const edges: Edge[] = []
   const nodePositions = new Map<string, { x: number, y: number }>()
 
+  // Calculate layout dimensions
+  const nodesPerRow = 3
+  const horizontalSpacing = 280  // Increased spacing between nodes
+  const verticalSpacing = 120    // Increased spacing between rows
+  const startX = 50
+  const startY = 50
+
   // First pass: create nodes with positions
   Object.keys(graph).forEach((nodeName, index) => {
-    const x = (index % 3) * 250 + 50  // 3 nodes per row, 250px apart
-    const y = Math.floor(index / 3) * 100 + 50  // 100px between rows
+    const row = Math.floor(index / nodesPerRow)
+    const col = index % nodesPerRow
+    const x = startX + (col * horizontalSpacing)
+    const y = startY + (row * verticalSpacing)
+    
     nodePositions.set(nodeName, { x, y })
     nodes.push({
       id: nodeName,
       position: { x, y },
       data: { label: nodeName },
-      className: 'group',
       style: { 
-        background: 'rgba(15, 23, 42, 0.8)',
-        color: '#00f0ff',
-        border: '2px solid rgba(0, 240, 255, 0.3)',
+        background: '#ffffff',
+        color: '#1f2937',  // Darker text for better contrast
+        border: '1px solid #e5e7eb',
         borderRadius: '8px',
-        padding: '12px',
-        backdropFilter: 'blur(8px)',
-        boxShadow: '0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1)',
-        transition: 'all 0.3s ease-in-out',
+        padding: '16px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'pointer',
         fontSize: '14px',
         fontWeight: '500',
-        letterSpacing: '0.5px',
-        transform: 'translateZ(0)'
+        minWidth: '150px',  // Ensure consistent node width
+        textAlign: 'center' as const
       }
     })
   })
@@ -44,13 +52,18 @@ const convertGraphToNodesAndEdges = (graph: Record<string, string[]>) => {
         source,
         target,
         style: { 
-          stroke: '#00f0ff', // neon-cyan
+          stroke: '#59D78F',
           strokeWidth: 2,
-          opacity: 0.6,
-          filter: 'drop-shadow(0 0 8px rgba(0, 240, 255, 0.4))'
+          opacity: 0.7
         },
-        animated: true,
-        type: 'smoothstep'
+        animated: false,  // Remove animation for cleaner look
+        type: 'smoothstep',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#59D78F',
+          width: 20,
+          height: 20
+        }
       })
     })
   })
@@ -144,16 +157,17 @@ function App() {
 
   if (isDeploying) {
     return (
-      <div className="min-h-screen bg-deep-space text-zinc-50 p-8 cyber-grid">
+      <div className="min-h-screen bg-gradient-to-b from-deep-blue-start to-deep-blue-end text-white p-8 relative">
+        <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2 neon-text">AI System Assembly Line</h1>
+            <h1 className="text-4xl font-bold mb-2">AI System Assembly</h1>
           </header>
-          <div className="loading-container holographic p-12 rounded-lg">
+          <div className="bg-white/5 backdrop-blur-sm p-12 rounded-lg shadow-lg border border-white/10">
             <div className="text-center relative z-10">
               <div className="loading-spinner mx-auto mb-6"></div>
-              <p className="text-xl mb-2 loading-text neon-text">Deploying Your System</p>
-              <p className="text-neon-cyan opacity-70">Initializing deployment sequence...</p>
+              <p className="text-xl mb-2">Deploying Your System</p>
+              <p className="text-gray-300">Please wait while we set up your environment...</p>
             </div>
           </div>
         </div>
@@ -162,90 +176,109 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-space text-zinc-50 p-8 cyber-grid relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-deep-space/80 to-transparent opacity-50 pointer-events-none"></div>
+    <div className="min-h-screen bg-gradient-to-b from-deep-blue-start to-deep-blue-end text-white p-8 relative">
+      <div className="absolute inset-0 bg-orbit-pattern opacity-10" />
       <div className="max-w-4xl mx-auto space-y-8 relative">
         <header className="text-center">
-          <h1 className="text-4xl font-bold mb-2 neon-text">AI System Assembly Line</h1>
-          <p className="text-zinc-400">Generate and deploy autonomous software systems</p>
+          <h1 className="text-4xl font-bold mb-2">AI System Assembly</h1>
+          <p className="text-gray-300">Next Generation Data Aggregation</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4 holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
-          <div className="space-y-2">
-            <label htmlFor="name" className="block text-sm font-medium mb-1 text-neon-cyan">
-              System Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={systemData.name}
-              onChange={(e) => setSystemData(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2 bg-zinc-800/80 rounded border border-zinc-700/50 focus:outline-none focus:glow-cyan hover:glow-blue transition-all duration-300 holographic"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-1 text-gray-700">
+                System Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={systemData.name}
+                onChange={(e) => setSystemData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all"
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="description" className="block text-sm font-medium mb-1 text-neon-cyan">
-              User Story
-            </label>
-            <textarea
-              id="description"
-              value={systemData.description}
-              onChange={(e) => setSystemData(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 bg-zinc-800/80 rounded border border-zinc-700/50 focus:outline-none focus:glow-cyan hover:glow-blue transition-all duration-300 holographic min-h-[100px]"
-              required
-              placeholder="As a user, I want... so that..."
-            />
-          </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-1 text-gray-700">
+                User Story
+              </label>
+              <textarea
+                id="description"
+                value={systemData.description}
+                onChange={(e) => setSystemData(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-accent focus:border-transparent transition-all min-h-[100px]"
+                required
+                placeholder="As a user, I want... so that..."
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-neon-blue hover:glow-blue disabled:opacity-50 disabled:cursor-not-allowed rounded font-medium transition-all duration-300 holographic"
-          >
-            {loading ? (
-              <span className="inline-flex items-center justify-center space-x-2">
-                <span className="loading-spinner w-5 h-5"></span>
-                <span className="loading-text">Processing</span>
-              </span>
-            ) : (
-              'Generate System'
-            )}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-accent text-white py-2 px-4 rounded-md font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {loading ? (
+                <span className="inline-flex items-center justify-center space-x-2">
+                  <span className="loading-spinner w-5 h-5"></span>
+                  <span>Processing</span>
+                </span>
+              ) : (
+                'Generate System'
+              )}
+            </button>
+          </div>
         </form>
 
         {error && (
-          <div className="holographic border-red-500/50 p-4 rounded-lg text-red-200 glow-red animate-pulse-glow">
-            <span className="inline-flex items-center">
-              <span className="mr-2">⚠</span>
-              {error}
-            </span>
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+            <div className="flex">
+              <div className="flex-shrink-0">⚠</div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
           </div>
         )}
 
         {graph && (
-          <div className="holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4 neon-text">System Dependency Graph</h2>
-            <div style={{ height: '500px' }} className="rounded-lg overflow-hidden holographic">
+          <div className="bg-white rounded-lg shadow-xl p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">System Dependency Graph</h2>
+            <div style={{ height: '500px' }} className="rounded-lg overflow-hidden border border-gray-200">
               <ReactFlow
                 {...convertGraphToNodesAndEdges(graph)}
                 fitView
-                className="bg-deep-space cyber-grid"
+                className="bg-white"
+                defaultEdgeOptions={{
+                  type: 'smoothstep',
+                  animated: false
+                }}
+                nodesDraggable={false}
+                nodesConnectable={false}
+                zoomOnScroll={false}
               >
-                <Background />
-                <Controls />
+                <Background 
+                  color="#e5e7eb"
+                  variant={BackgroundVariant.Dots}
+                  gap={16}
+                  size={1}
+                />
+                <Controls 
+                  className="bg-white shadow-lg border border-gray-200"
+                  showInteractive={false}
+                />
               </ReactFlow>
             </div>
             <button
               onClick={handleDeploy}
               disabled={loading}
-              className="mt-4 bg-neon-blue hover:glow-blue text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="mt-4 bg-green-accent text-white px-6 py-2 rounded-md font-medium hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
-                <span className="inline-flex items-center">
-                  <span className="animate-pulse-glow">Deploying</span>
-                  <span className="animate-pulse">...</span>
+                <span className="inline-flex items-center space-x-2">
+                  <span className="loading-spinner w-5 h-5"></span>
+                  <span>Deploying</span>
                 </span>
               ) : (
                 'Deploy This App'
@@ -255,20 +288,20 @@ function App() {
         )}
 
         {deployedUrl && (
-          <div className="holographic p-6 rounded-lg hover:glow-cyan transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4 neon-text">Deployment Status</h2>
-            <p className="text-neon-cyan mb-2 flex items-center">
+          <div className="bg-white rounded-lg shadow-xl p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Deployment Status</h2>
+            <p className="text-green-600 mb-2 flex items-center">
               <span className="mr-2">✓</span>
-              <span className="animate-pulse-glow">System successfully deployed</span>
+              System successfully deployed
             </p>
             <a
               href={deployedUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-neon-blue hover:glow-blue transition-all duration-300"
+              className="inline-flex items-center text-green-accent hover:text-opacity-80 transition-all"
             >
               View Deployed System
-              <span className="ml-1 animate-float">→</span>
+              <span className="ml-1">→</span>
             </a>
           </div>
         )}
