@@ -186,6 +186,7 @@ const createNodes = (data: Architecture): Node[] => {
     position: { x: 100 + (index % 4) * 350, y: 100 + Math.floor(index / 4) * 250 },
     data: node,
   }))
+}
 
 const createEdges = (data: Architecture): Edge[] => {
   const edges: Edge[] = []
