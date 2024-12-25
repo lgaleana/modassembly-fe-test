@@ -252,8 +252,7 @@ function App() {
       const data = await response.json();
       setStoredAppName(appName);
       setCurrentArchitecture({ ...data, app_name: appName });
-      setAppName('');
-      setSystemDescription('');
+      // Keep form fields populated for user convenience
     } catch (error) {
       console.error('Error:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate architecture. Please try again.');
@@ -366,7 +365,7 @@ function App() {
             nodeColor="#6366f1"
             maskColor="rgb(243, 244, 246, 0.7)"
           />
-          <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+          <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-50">
             <button
               onClick={handleImplement}
               disabled={isImplementing}
