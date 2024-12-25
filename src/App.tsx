@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState, FormEvent, useEffect } from 'react'
 import ReactFlow, {
   Node,
   Edge,
@@ -13,7 +13,8 @@ import 'reactflow/dist/style.css'
 import { Architecture } from './types'
 import { CustomNode } from './components/CustomNode'
 
-const architectureData: Architecture = {
+// Initial architecture data for demonstration
+const initialArchitectureData: Architecture = {
   "architecture": [
     {
       "type": "function",
@@ -208,8 +209,48 @@ const createEdges = (data: Architecture): Edge[] => {
 }
 
 function App() {
-  const [nodes, _, onNodesChange] = useNodesState(createNodes(architectureData))
-  const [edges, setEdges, onEdgesChange] = useEdgesState(createEdges(architectureData))
+  const [appName, setAppName] = useState('');
+  const [systemDescription, setSystemDescription] = useState('');
+  const [currentArchitecture, setCurrentArchitecture] = useState<Architecture>(initialArchitectureData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [nodes, setNodes, onNodesChange] = useNodesState(createNodes(currentArchitecture))
+  const [edges, setEdges, onEdgesChange] = useEdgesState(createEdges(currentArchitecture))
+
+  useEffect(() => {
+    const newNodes = createNodes(currentArchitecture);
+    const newEdges = createEdges(currentArchitecture);
+    setNodes(newNodes);
+    setEdges(newEdges);
+  }, [currentArchitecture, setNodes, setEdges]);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://34.135.155.158:8000/create-architecture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ app_name: appName, system_description: systemDescription })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setCurrentArchitecture(data);
+      setAppName('');
+      setSystemDescription('');
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate architecture. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onConnect = useCallback((params: any) => {
     setEdges((eds) => addEdge(params, eds))
@@ -224,6 +265,47 @@ function App() {
       <div className="p-4 bg-white shadow-sm">
         <h1 className="text-3xl font-bold text-center text-gray-900">Architecture Graph</h1>
         <p className="text-center text-gray-600 mt-2">System Architecture Visualization</p>
+        
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="mt-4 flex gap-4 items-start justify-center">
+          <div>
+            <label htmlFor="appName" className="block text-sm font-medium text-gray-700">App Name</label>
+            <input
+              id="appName"
+              type="text"
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              placeholder="Enter app name"
+              className="mt-1 block w-48 rounded border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="systemDescription" className="block text-sm font-medium text-gray-700">System Description</label>
+            <textarea
+              id="systemDescription"
+              value={systemDescription}
+              onChange={(e) => setSystemDescription(e.target.value)}
+              placeholder="Describe your system"
+              rows={3}
+              className="mt-1 block w-96 rounded border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`mt-7 rounded px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+              isLoading 
+                ? 'bg-indigo-400 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-500'
+            }`}
+          >
+            {isLoading ? 'Generating...' : 'Generate Architecture'}
+          </button>
+        </form>
       </div>
       <div className="w-full h-[calc(100vh-8rem)]">
         <ReactFlow
