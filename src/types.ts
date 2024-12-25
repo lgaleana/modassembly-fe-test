@@ -11,3 +11,5 @@ export interface Architecture {
   architecture: ArchitectureNode[];
   external_infrastructure: string[];
 }
+
+export type ArchitectureState = Architecture | null;

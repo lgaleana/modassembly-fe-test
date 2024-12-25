@@ -10,7 +10,7 @@ import ReactFlow, {
   addEdge,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { Architecture } from './types'
+import { Architecture, ArchitectureState } from './types'
 import { CustomNode } from './components/CustomNode'
 
 // Initial architecture data for demonstration
@@ -211,18 +211,23 @@ const createEdges = (data: Architecture): Edge[] => {
 function App() {
   const [appName, setAppName] = useState('');
   const [systemDescription, setSystemDescription] = useState('');
-  const [currentArchitecture, setCurrentArchitecture] = useState<Architecture>(initialArchitectureData);
+  const [currentArchitecture, setCurrentArchitecture] = useState<ArchitectureState>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [nodes, setNodes, onNodesChange] = useNodesState(createNodes(currentArchitecture))
-  const [edges, setEdges, onEdgesChange] = useEdgesState(createEdges(currentArchitecture))
+  const [nodes, setNodes, onNodesChange] = useNodesState(currentArchitecture ? createNodes(currentArchitecture) : [])
+  const [edges, setEdges, onEdgesChange] = useEdgesState(currentArchitecture ? createEdges(currentArchitecture) : [])
 
   useEffect(() => {
-    const newNodes = createNodes(currentArchitecture);
-    const newEdges = createEdges(currentArchitecture);
-    setNodes(newNodes);
-    setEdges(newEdges);
+    if (currentArchitecture) {
+      const newNodes = createNodes(currentArchitecture);
+      const newEdges = createEdges(currentArchitecture);
+      setNodes(newNodes);
+      setEdges(newEdges);
+    } else {
+      setNodes([]);
+      setEdges([]);
+    }
   }, [currentArchitecture, setNodes, setEdges]);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -308,7 +313,8 @@ function App() {
         </form>
       </div>
       <div className="w-full h-[calc(100vh-8rem)]">
-        <ReactFlow
+        {currentArchitecture ? (
+          <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -330,6 +336,11 @@ function App() {
             maskColor="rgb(243, 244, 246, 0.7)"
           />
         </ReactFlow>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-gray-50">
+            <p className="text-gray-500 text-lg">Submit the form above to generate and visualize the architecture</p>
+          </div>
+        )}
       </div>
     </div>
   )
