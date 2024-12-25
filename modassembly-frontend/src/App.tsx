@@ -64,7 +64,22 @@ function App() {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('Error response:', errorText)
-        throw new Error('Failed to generate architecture')
+        
+        // Check for "Application already exists" error
+        if (errorText.includes('Application') && errorText.includes('already exists')) {
+          toast({
+            title: "Application Already Exists",
+            description: `An application with the name "${appName}" already exists. Please choose a different name.`,
+            variant: "destructive"
+          })
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to generate architecture. Please try again.",
+            variant: "destructive"
+          })
+        }
+        return
       }
 
       const data: ArchitectureResponse = await response.json()
@@ -75,9 +90,10 @@ function App() {
         description: "Architecture generated successfully.",
       })
     } catch (error) {
+      console.error('Unexpected error:', error)
       toast({
         title: "Error",
-        description: "Failed to generate architecture. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       })
     } finally {
