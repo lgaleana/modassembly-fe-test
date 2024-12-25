@@ -343,7 +343,7 @@ function App() {
           </button>
         </form>
       </div>
-      <div className="w-full h-[calc(100vh-8rem)]">
+      <div className="w-full h-[calc(100vh-8rem)] relative">
         {currentArchitecture ? (
           <ReactFlow
           nodes={nodes}
