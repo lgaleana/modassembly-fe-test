@@ -10,6 +10,7 @@ export interface ArchitectureNode {
 export interface Architecture {
   architecture: ArchitectureNode[];
   external_infrastructure: string[];
+  app_name: string;
 }
 
 export type ArchitectureState = Architecture | null;

@@ -177,7 +177,8 @@ const initialArchitectureData: Architecture = {
       "is_endpoint": false
     }
   ],
-  "external_infrastructure": ["database"]
+  "external_infrastructure": ["database"],
+  "app_name": "example"
 }
 
 const createNodes = (data: Architecture): Node[] => {
@@ -214,6 +215,9 @@ function App() {
   const [currentArchitecture, setCurrentArchitecture] = useState<ArchitectureState>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [storedAppName, setStoredAppName] = useState('');
+  const [implementationUrl, setImplementationUrl] = useState<string | null>(null);
+  const [isImplementing, setIsImplementing] = useState(false);
   
   const [nodes, setNodes, onNodesChange] = useNodesState(currentArchitecture ? createNodes(currentArchitecture) : [])
   const [edges, setEdges, onEdgesChange] = useEdgesState(currentArchitecture ? createEdges(currentArchitecture) : [])
@@ -246,7 +250,8 @@ function App() {
       }
       
       const data = await response.json();
-      setCurrentArchitecture(data);
+      setStoredAppName(appName);
+      setCurrentArchitecture({ ...data, app_name: appName });
       setAppName('');
       setSystemDescription('');
     } catch (error) {
@@ -260,6 +265,32 @@ function App() {
   const onConnect = useCallback((params: any) => {
     setEdges((eds) => addEdge(params, eds))
   }, [setEdges])
+
+  const handleImplement = async () => {
+    if (!currentArchitecture) return;
+    
+    setError(null);
+    setIsImplementing(true);
+    try {
+      const response = await fetch('http://34.135.155.158:8000/implement-architecture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ app_name: storedAppName })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const url = await response.text();
+      setImplementationUrl(url);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to implement architecture. Please try again.');
+    } finally {
+      setIsImplementing(false);
+    }
+  };
 
   const nodeTypes = {
     custom: CustomNode,
@@ -335,6 +366,27 @@ function App() {
             nodeColor="#6366f1"
             maskColor="rgb(243, 244, 246, 0.7)"
           />
+          <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+            <button
+              onClick={handleImplement}
+              disabled={isImplementing}
+              className={`rounded px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                isImplementing 
+                  ? 'bg-indigo-400 cursor-not-allowed' 
+                  : 'bg-indigo-600 hover:bg-indigo-500'
+              }`}
+            >
+              {isImplementing ? 'Implementing...' : 'Implement'}
+            </button>
+            {implementationUrl && (
+              <div className="p-4 bg-white rounded shadow-sm">
+                <p className="text-sm font-medium text-gray-900">Implementation URL:</p>
+                <a href={implementationUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:text-indigo-500 break-all">
+                  {implementationUrl}
+                </a>
+              </div>
+            )}
+          </div>
         </ReactFlow>
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-50">
