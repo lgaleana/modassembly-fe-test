@@ -252,7 +252,8 @@ function App() {
       const data = await response.json();
       setStoredAppName(appName);
       setCurrentArchitecture({ ...data, app_name: appName });
-      // Keep form fields populated for user convenience
+      setAppName('');
+      setSystemDescription('');
     } catch (error) {
       console.error('Error:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate architecture. Please try again.');
@@ -290,7 +291,6 @@ function App() {
       setIsImplementing(false);
     }
   };
-
   const nodeTypes = {
     custom: CustomNode,
   }
