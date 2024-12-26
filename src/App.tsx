@@ -239,7 +239,7 @@ function App() {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await fetch('http://34.135.155.158:8000/create-architecture', {
+      const response = await fetch('/api/create-architecture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ app_name: appName, system_description: systemDescription })
@@ -271,7 +271,7 @@ function App() {
     setError(null);
     setIsImplementing(true);
     try {
-      const response = await fetch('http://34.135.155.158:8000/implement-architecture', {
+      const response = await fetch('/api/implement-architecture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ app_name: storedAppName })
