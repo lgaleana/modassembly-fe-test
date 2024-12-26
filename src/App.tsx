@@ -239,7 +239,7 @@ function App() {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await fetch('http://34.135.155.158:8000/create-architecture', {
+      const response = await fetch('/api/create-architecture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ app_name: appName, system_description: systemDescription })
@@ -272,7 +272,7 @@ function App() {
     setError(null);
     setIsImplementing(true);
     try {
-      const response = await fetch('http://34.135.155.158:8000/implement-architecture', {
+      const response = await fetch('/api/implement-architecture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ app_name: storedAppName })
@@ -291,7 +291,6 @@ function App() {
       setIsImplementing(false);
     }
   };
-
   const nodeTypes = {
     custom: CustomNode,
   }
@@ -366,7 +365,7 @@ function App() {
             nodeColor="#6366f1"
             maskColor="rgb(243, 244, 246, 0.7)"
           />
-          <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+          <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-50">
             <button
               onClick={handleImplement}
               disabled={isImplementing}
